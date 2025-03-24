@@ -59,3 +59,7 @@ class AutoLlamaCpp:
             except Exception as e:
                 print("Error terminating llama server:", e)
             self.proc.wait()
+
+    def close(self):
+        """Public method to manually stop the server."""
+        self._cleanup()
