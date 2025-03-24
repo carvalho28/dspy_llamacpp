@@ -27,4 +27,5 @@ setup(
     ],
     python_requires='>=3.6',
     keywords="llama cpp dspy integration",
+    license="MIT",
 )
