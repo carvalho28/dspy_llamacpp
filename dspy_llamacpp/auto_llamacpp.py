@@ -6,7 +6,7 @@ import signal
 import dspy
 
 class AutoLlamaCpp:
-    def __init__(self, model_path, port=8080, server_options=None, **lm_kwargs):
+    def __init__(self, model_path, port=8080, sleep_time=10, server_options=None, **lm_kwargs):
         """
         model_path: Path to the model.
         port: Port to run the server on.
@@ -48,7 +48,7 @@ class AutoLlamaCpp:
         )
         print("Llama server started on port", self.port)
         # Wait for the server to be available
-        time.sleep(10)
+        time.sleep(self.sleep_time)
         # Register cleanup to ensure termination on exit
         atexit.register(self._cleanup)
 
