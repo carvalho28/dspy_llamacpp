@@ -15,6 +15,7 @@ class AutoLlamaCpp:
         """
         self.model_path = model_path
         self.port = port
+        self.sleep_time = sleep_time
         self.server_options = server_options or {}
         self.proc = None
         self._start_server()
