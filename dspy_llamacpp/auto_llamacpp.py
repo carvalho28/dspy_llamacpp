@@ -27,7 +27,7 @@ class AutoLlamaCpp:
             **lm_kwargs,
         )
         # remove for thread safety ??
-        # dspy.configure(lm=self.lm)
+        dspy.configure(lm=self.lm)
 
     def _start_server(self):
         # Base command for llama-server
