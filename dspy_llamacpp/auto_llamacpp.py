@@ -40,9 +40,12 @@ class AutoLlamaCpp:
         ]
         # Add server options to the command
         for key, value in self.server_options.items():
-            cmd.append(key)
-            if not isinstance(value, bool):
-                cmd.append(str(value))
+            if isinstance(value, bool) and value:  # Only include flag if True
+                cmd.append(key)
+            elif value is None:  # For flags passed as None
+                cmd.append(key)
+            elif not isinstance(value, bool):
+                cmd.extend([key, str(value)])
 
         # Prepare environment with optional GPU masking
         env = os.environ.copy()
