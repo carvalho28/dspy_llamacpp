@@ -6,27 +6,29 @@ import signal
 import dspy
 
 class AutoLlamaCpp:
-    def __init__(self, model_path, port=8080, sleep_time=10, server_options=None, **lm_kwargs):
+    def __init__(self, model_path, port=8080, sleep_time=10, server_options=None, gpu_env=None, **lm_kwargs):
         """
         model_path: Path to the model.
         port: Port to run the server on.
         server_options: Dictionary of additional server options, e.g. {"--verbosity": -1}
+        gpu_env: Comma-separated list of GPU indices to expose (e.g., "1,2,3").
         lm_kwargs: Additional keyword arguments for dspy.LM.
         """
         self.model_path = model_path
         self.port = port
         self.sleep_time = sleep_time
         self.server_options = server_options or {}
+        self.gpu_env = gpu_env
         self.proc = None
         self._start_server()
-        # Configure the LM instance
+        
+        # Configure the LM instance for DSPy
         self.lm = dspy.LM(
             model="openai/model",
             api_base=f"http://localhost:{port}/v1",
             api_key="none",
             **lm_kwargs,
         )
-        # remove for thread safety ??
         dspy.configure(lm=self.lm)
 
     def _start_server(self):
@@ -36,22 +38,30 @@ class AutoLlamaCpp:
             "-m", self.model_path,
             "--port", str(self.port),
         ]
-        # Append server options from the dictionary
+        # Add server options to the command
         for key, value in self.server_options.items():
-            # Append the key (option flag)
             cmd.append(key)
-            # If value is not a boolean, append its value
             if not isinstance(value, bool):
                 cmd.append(str(value))
-        # Start the server in its own process group
+
+        # Prepare environment with optional GPU masking
+        env = os.environ.copy()
+        if self.gpu_env:
+            env["CUDA_VISIBLE_DEVICES"] = self.gpu_env
+            print(f"[AutoLlamaCpp] Using CUDA_VISIBLE_DEVICES={self.gpu_env}")
+
+        # Start the server subprocess
         self.proc = subprocess.Popen(
             cmd,
-            preexec_fn=os.setsid
+            preexec_fn=os.setsid,
+            env=env
         )
         print("Llama server started on port", self.port)
-        # Wait for the server to be available
+
+        # Wait for server to spin up
         time.sleep(self.sleep_time)
-        # Register cleanup to ensure termination on exit
+
+        # Ensure it shuts down cleanly on script exit
         atexit.register(self._cleanup)
 
     def _cleanup(self):
