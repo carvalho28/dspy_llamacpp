@@ -41,7 +41,8 @@ class AutoLlamaCpp:
         )
         # dspy.configure(lm=self.lm)
         if is_reasoning:
-            dspy.configure(adapter=dspy.TwoStepAdapter(self.lm))
+            adapter = dspy.TwoStepAdapter(dspy.LM("openai/gpt-4o-mini"))
+            dspy.configure(lm=self.lm, adapter=adapter)
         else:
             dspy.configure(lm=self.lm)
 
