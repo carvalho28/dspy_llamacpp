@@ -41,7 +41,7 @@ class AutoLlamaCpp:
         )
         # dspy.configure(lm=self.lm)
         if is_reasoning:
-            dspy.configure(lm=self.lm, adapter=dspy.TwoStepAdapter(self.lm))
+            dspy.configure(adapter=dspy.TwoStepAdapter(self.lm))
         else:
             dspy.configure(lm=self.lm)
 
