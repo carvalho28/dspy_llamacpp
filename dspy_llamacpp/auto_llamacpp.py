@@ -45,7 +45,7 @@ class AutoLlamaCpp:
             adapter = dspy.TwoStepAdapter(self.lm)
             dspy.configure(lm=self.lm, adapter=adapter)
         elif is_json:
-            adapter = dspy.JsonAdapter()
+            adapter = dspy.JSONAdapter()
             dspy.configure(lm=self.lm, adapter=adapter)
         else:
             dspy.configure(lm=self.lm)
