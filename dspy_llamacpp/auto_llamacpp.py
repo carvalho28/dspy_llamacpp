@@ -13,6 +13,7 @@ class AutoLlamaCpp:
         port=8080,
         sleep_time=10,
         is_reasoning=False,
+        is_json=False,
         server_options: dict | None = None,
         gpu_env: str | None = None,
         **lm_kwargs,
@@ -42,6 +43,9 @@ class AutoLlamaCpp:
         # dspy.configure(lm=self.lm)
         if is_reasoning:
             adapter = dspy.TwoStepAdapter(self.lm)
+            dspy.configure(lm=self.lm, adapter=adapter)
+        elif is_json:
+            adapter = dspy.JsonAdapter()
             dspy.configure(lm=self.lm, adapter=adapter)
         else:
             dspy.configure(lm=self.lm)
