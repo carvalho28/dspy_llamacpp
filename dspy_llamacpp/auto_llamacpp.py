@@ -42,9 +42,11 @@ class AutoLlamaCpp:
         )
         # dspy.configure(lm=self.lm)
         if is_reasoning:
+            print("Using reasoning adapter")
             adapter = dspy.TwoStepAdapter(self.lm)
             dspy.configure(lm=self.lm, adapter=adapter)
         elif is_json:
+            print("Using JSON adapter")
             adapter = dspy.JSONAdapter()
             dspy.configure(lm=self.lm, adapter=adapter)
         else:
