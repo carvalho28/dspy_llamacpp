@@ -5,8 +5,18 @@ import os
 import signal
 import dspy
 
+
 class AutoLlamaCpp:
-    def __init__(self, model_path, port=8080, sleep_time=10, server_options=None, gpu_env=None, **lm_kwargs):
+    def __init__(
+        self,
+        model_path,
+        port=8080,
+        sleep_time=10,
+        adapter: dspy.Adapter | None = None,
+        server_options: dict | None = None,
+        gpu_env: str | None = None,
+        **lm_kwargs,
+    ):
         """
         model_path: Path to the model.
         port: Port to run the server on.
@@ -21,7 +31,7 @@ class AutoLlamaCpp:
         self.gpu_env = gpu_env
         self.proc = None
         self._start_server()
-        
+
         # Configure the LM instance for DSPy
         self.lm = dspy.LM(
             model="openai/model",
@@ -29,14 +39,20 @@ class AutoLlamaCpp:
             api_key="none",
             **lm_kwargs,
         )
-        dspy.configure(lm=self.lm)
+        # dspy.configure(lm=self.lm)
+        if adapter is not None:
+            dspy.configure(lm=self.lm, adapter=adapter)
+        else:
+            dspy.configure(lm=self.lm)
 
     def _start_server(self):
         # Base command for llama-server
         cmd = [
             "llama-server",
-            "-m", self.model_path,
-            "--port", str(self.port),
+            "-m",
+            self.model_path,
+            "--port",
+            str(self.port),
         ]
         # Add server options to the command
         for key, value in self.server_options.items():
@@ -54,11 +70,7 @@ class AutoLlamaCpp:
             print(f"[AutoLlamaCpp] Using CUDA_VISIBLE_DEVICES={self.gpu_env}")
 
         # Start the server subprocess
-        self.proc = subprocess.Popen(
-            cmd,
-            preexec_fn=os.setsid,
-            env=env
-        )
+        self.proc = subprocess.Popen(cmd, preexec_fn=os.setsid, env=env)
         print("Llama server started on port", self.port)
 
         # Wait for server to spin up
