@@ -12,7 +12,7 @@ class AutoLlamaCpp:
         model_path,
         port=8080,
         sleep_time=10,
-        adapter: dspy.Adapter | None = None,
+        is_reasoning=False,
         server_options: dict | None = None,
         gpu_env: str | None = None,
         **lm_kwargs,
@@ -40,8 +40,8 @@ class AutoLlamaCpp:
             **lm_kwargs,
         )
         # dspy.configure(lm=self.lm)
-        if adapter is not None:
-            dspy.configure(lm=self.lm, adapter=adapter)
+        if is_reasoning:
+            dspy.configure(lm=self.lm, adapter=dspy.TwoShotAdapter(self.lm))
         else:
             dspy.configure(lm=self.lm)
 
